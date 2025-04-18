@@ -1,0 +1,83 @@
+version: "3.8"
+
+services:
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - labsessional
+    restart: always
+    networks:
+      - net1
+
+
+
+inventory-services:
+  build:./inventory-services
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/notesapp
+    depends_on:
+      - mongo
+    restart: always
+    networks:
+      - net1
+      - net2
+
+
+menu-services:
+  build:./menu-services
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/notesapp
+    depends_on:
+      - mongo
+    restart: always
+    networks:
+      - net1
+      - net2
+
+customer-service:
+    build:
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/notesapp
+    depends_on:
+      - mongo
+    restart: always
+    networks:
+      - net1
+      - net2
+
+  order-services:
+    build: ./ customer-services
+    ports:
+      - "3000:5173"
+    environment:
+      - REACT_APP_BASE_URL=http://localhost:5000
+    restart: always
+    networks:
+      - net2
+
+  payment-services:
+    build: ./server
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/notesapp
+    depends_on:
+      - mongo
+    restart: always
+    networks:
+      - net1
+      - net2
+
+
+
+
+volumes:
+ labsessional
